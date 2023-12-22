@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TODO App</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+  <style>
+    .custom-checkbox {
+      transform: scale(2);
+      margin: auto;
+      display: block;
+      margin-left: 23px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <section class="vh-100" style="background-color: #eee;">
+    <div class="container py-5 h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col col-lg-9 col-xl-7">
+          <div class="card rounded-3">
+            <div class="card-body p-4">
+
+              <h1 class="text-center my-3 pb-3">TODO List</h1>
+
+              <!-- Formularz do dodawania nowych zadań -->
+              <form action="/add" method="post" class="row row-cols-lg-auto g-3 justify-content-center align-items-center mb-4 pb-2">
+                <div class="col-12">
+                  <div class="form-outline">
+                    <input type="text" name="content" class="form-control" />
+                    <label class="form-label">Enter a task here</label>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <button type="submit" class="btn btn-primary">Add Task</button>
+                  <!-- Dodaj poniżej przycisku "Add Task" -->
+                  <a href="/api/tasks" class="btn btn-primary">View API</a>
+
+                </div>
+              </form>
+
+              <!-- Tabela wyświetlająca listę zadań -->
+              <table class="table mb-4">
+                <thead>
+                  <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Task</th>
+                    <th scope="col">Finished</th>
+                    <th scope="col">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for task in tasks %}
+                    <tr>
+                      <td>{{ task.id }}</td>
+                      <td>{{ task.content }}</td>
+                      <td>
+                        <input type="checkbox" name="finished" value="{{ task.id }}" class="custom-checkbox" {% if task.finished %}checked{% endif %}>
+                      </td>
+                      <td>
+                        <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-danger">Delete</a>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // Zapisywanie stanu checkboxów do cookies
+    $(document).ready(function() {
+      $('input[name="finished"]').change(function() {
+        var taskId = $(this).val();
+        var isChecked = $(this).prop('checked');
+        document.cookie = 'task_' + taskId + '=' + (isChecked ? '1' : '0');
+      });
+
+      // Odczytywanie stanu checkboxów z cookies
+      $('input[name="finished"]').each(function() {
+        var taskId = $(this).val();
+        var cookieName = 'task_' + taskId;
+        var cookieValue = getCookie(cookieName);
+        if (cookieValue === '1') {
+          $(this).prop('checked', true);
+        }
+      });
+
+      // Funkcja pomocnicza do odczytu cookies
+      function getCookie(name) {
+        var value = "; " + document.cookie;
+        var parts = value.split("; " + name + "=");
+        if (parts.length === 2) return parts.pop().split(";").shift();
+      }
+    });
+  </script>
+</body>
+</html>
